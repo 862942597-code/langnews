@@ -1,0 +1,13 @@
+{
+  "name": "多行业语言精读",
+  "short_name": "LangNews",
+  "description": "新能源/智能家居/3D打印/AI 日语英语学习",
+  "start_url": "/battlingua.html",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#0f766e",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
