@@ -1,6 +1,5 @@
-// api/news.js —— 已加入内容清洗，解决乱码/过短问题
+// api/news.js —— 使用 Gemini 将短新闻扩写成 800-1000 字长文
 
-// 各主题对应的多语言关键词
 const TOPICS = {
   battery: '("全固体電池" OR "lithium battery" OR "EV battery" OR "solid-state battery")',
   smarthome: '("スマートホーム" OR "smart home" OR "Matter protocol" OR "connected home")',
@@ -8,75 +7,115 @@ const TOPICS = {
   ai: '("生成AI" OR "artificial intelligence" OR "AI speaker" OR "大規模言語モデル")'
 };
 
-// 核心清洗函数：把杂乱的文本变成干净的纯文字
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const NEWS_API_KEY = process.env.NEWS_API_KEY;
+
+// 清洗原始文本，去掉 HTML 等
 function cleanNewsText(rawText) {
   if (!rawText) return '';
-  let text = rawText
-    // 去掉 HTML 标签
+  return rawText
     .replace(/<[^>]*>/g, '')
-    // 去掉转义字符 &amp; &lt; 等
     .replace(/&[a-z]+;/gi, '')
-    // 去掉网址 (http/https)
     .replace(/https?:\/\/\S+/g, '')
-    // 去掉形如 [...+数字 chars] 的截断标记
     .replace(/\[\.\.\.?\+\d+\s*chars\]/gi, '')
-    // 把连续多个空格/换行压缩成一个空格
     .replace(/\s+/g, ' ')
-    // 去掉首尾空格
     .trim();
-  return text;
 }
 
-// 从多个字段中挑出最长的有效文本（优先 content，其次 description）
-function extractBestContent(article) {
-  // 有些文章 content 更长，有些只有 description
-  const rawContent = article.content || '';
-  const rawDescription = article.description || '';
-  
-  const cleanContent = cleanNewsText(rawContent);
-  const cleanDescription = cleanNewsText(rawDescription);
-  
-  // 选择更长的那个作为正文
-  const bestText = cleanContent.length > cleanDescription.length ? cleanContent : cleanDescription;
-  
-  // 如果最终获得的正文仍然太短（比如少于100字符），强制补一点说明
-  if (bestText.length < 100) {
-    return `${article.title}。詳細は元記事をご参照ください。`;
+// 从 Gemini API 获取长文扩写
+async function expandNewsWithGemini(title, summaries, lang) {
+  const basePrompt = lang === 'jp' ?
+    `あなたは日本のニュース編集者です。以下の複数の短いニュースをもとに、800〜1000字程度の詳しい業界ニュース記事を日本語で書いてください。重要な専門用語（全固体電池、リン酸鉄リチウムなど）は太字で示し、必要に応じて簡単な説明を加えてください。必ず1つのまとまった記事として構成し、段落に分けて読みやすくしてください。` :
+    `You are a news editor. Based on the following multiple short news items, write a comprehensive industry news article of about 800-1000 words in English. Highlight important technical terms (such as solid-state battery, LFP, etc.) and add brief explanations where appropriate. Structure it as one coherent article with paragraphs.`;
+
+  const userMessage = `Title: ${title}\n\nShort articles:\n${summaries}`;
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              { text: basePrompt },
+              { text: userMessage }
+            ]
+          }
+        ]
+      })
+    }
+  );
+
+  const data = await response.json();
+  if (data.error) {
+    console.error('Gemini error:', data.error);
+    return null;
   }
-  
-  return bestText;
+
+  const generatedText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  return generatedText || null;
 }
 
-// 从 NewsAPI 抓取单个主题的新闻
-async function fetchNews(topic, lang) {
+// 抓取一个主题的多篇文章（取前3篇）
+async function fetchArticles(topic, lang) {
   const query = TOPICS[topic];
   const language = lang === 'jp' ? 'jp' : 'en';
-  const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&language=${language}&sortBy=publishedAt&pageSize=1&apiKey=${process.env.NEWS_API_KEY}`;
+  const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&language=${language}&sortBy=publishedAt&pageSize=3&apiKey=${NEWS_API_KEY}`;
 
   const res = await fetch(url);
   const data = await res.json();
-  if (!data.articles || data.articles.length === 0) return null;
+  return data.articles || [];
+}
 
-  const article = data.articles[0];
-  const cleanBody = extractBestContent(article);
+// 为主函数整合
+async function fetchNewsForTopic(topic, lang) {
+  const articles = await fetchArticles(topic, lang);
+  if (articles.length === 0) return null;
+
+  const firstTitle = articles[0].title || '無題';
+  const summaries = articles.map(a => {
+    const desc = cleanNewsText(a.description || '');
+    const cont = cleanNewsText(a.content || '');
+    return desc.length > cont.length ? desc : cont;
+  }).join('\n---\n');
+
+  if (!GEMINI_API_KEY) {
+    // 如果没有配置 Gemini，就只返回三篇摘要的拼接（短）
+    return {
+      id: `${lang}_${topic}_${Date.now()}`,
+      title: firstTitle,
+      source: 'NewsAPI + Gemini (not configured)',
+      content: summaries
+    };
+  }
+
+  // 调用 Gemini 扩写
+  const longArticle = await expandNewsWithGemini(firstTitle, summaries, lang);
+  if (!longArticle) {
+    return {
+      id: `${lang}_${topic}_${Date.now()}`,
+      title: firstTitle,
+      source: 'NewsAPI (Gemini failed)',
+      content: summaries
+    };
+  }
 
   return {
     id: `${lang}_${topic}_${Date.now()}`,
-    title: article.title || '無題',
-    source: article.source?.name || 'News',
-    content: cleanBody
+    title: firstTitle,            // 保持原标题
+    source: articles[0].source?.name || 'News',
+    content: longArticle          // 这就是 800-1000 字的长文
   };
 }
 
-// Vercel Serverless Function 入口
 export default async function handler(req, res) {
   try {
     const result = { japanese: {}, english: {} };
     for (const topic of Object.keys(TOPICS)) {
-      const jpArticle = await fetchNews(topic, 'jp');
-      const enArticle = await fetchNews(topic, 'en');
-      result.japanese[topic] = jpArticle ? [jpArticle] : [];
-      result.english[topic] = enArticle ? [enArticle] : [];
+      result.japanese[topic] = [await fetchNewsForTopic(topic, 'jp')].filter(Boolean);
+      result.english[topic] = [await fetchNewsForTopic(topic, 'en')].filter(Boolean);
     }
     res.status(200).json(result);
   } catch (e) {
