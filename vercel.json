@@ -1,12 +1,13 @@
 {
   "rewrites": [
+    { "source": "/api/translate", "destination": "/api/translate" },
     { "source": "/api/parse-article", "destination": "/api/parse-article" },
     { "source": "/((?!api/).*)", "destination": "/battlingua.html" }
   ],
   "crons": [
     {
       "path": "/api/news?refresh=true",
-      "schedule": "0 8 * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
