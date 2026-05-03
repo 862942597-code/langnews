@@ -424,33 +424,49 @@
       return fullNews;
     }
 
-    // 核心：加载新闻（先拿列表，再提全文，失败则降级）
-    async function loadNews() {
-      const badge = document.getElementById('updateBadge');
-      try {
-        newsContainer.innerHTML = '<div class="loading-spinner">⏳ 正在加载今日新闻...</div>';
-        const res = await fetch('/api/news');
-        if (!res.ok) throw new Error('API error');
-        const data = await res.json();
+// 替换原来的 loadNews 函数（约在 1060 行左右）
+async function loadNews() {
+  const badge = document.getElementById('updateBadge');
+  try {
+    newsContainer.innerHTML = '<div class="loading-spinner">⏳ 正在加载今日新闻...</div>';
+    const res = await fetch('/api/news');
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
 
-        // 尝试提取全文
+    // 检查 API 本身是否已经带了足够长的内容（Gemini 生成的长文或摘要）
+    const firstContent = data?.japanese?.battery?.[0]?.content || '';
+    const hasEnoughContent = firstContent.length > 100; // 至少 100 个字符
+
+    if (hasEnoughContent) {
+      // 情况1：news.js 已经提供了高质量长文/摘要，直接用
+      newsDB = data;
+      badge.textContent = '✅ 今日AI生成长文';
+      badge.className = 'update-badge online';
+    } else {
+      // 情况2：内容太短，尝试快速全文提取（只作为尝试，失败也无妨）
+      try {
         const fullData = await fetchFullContent(data);
-        const hasFullContent = fullData?.japanese?.battery?.[0]?.content?.length > 50;
-        if (hasFullContent) {
+        const hasFull = fullData?.japanese?.battery?.[0]?.content?.length > 100;
+        if (hasFull) {
           newsDB = fullData;
           badge.textContent = '✅ 今日原文长文';
           badge.className = 'update-badge online';
         } else {
-          throw new Error('No full content');
+          throw new Error('Full extraction empty');
         }
       } catch (e) {
-        console.warn('全文提取失败，使用内置长文', e);
-        newsDB = FALLBACK_NEWS;
-        badge.textContent = '📚 内置精选长文（离线可用）';
-        badge.className = 'update-badge offline';
+        console.warn('全文提取失败，但API内容也短，使用内置', e);
+        throw new Error('No usable content');
       }
-      refreshNews();
     }
+  } catch (e) {
+    console.warn('所有在线获取均失败，启用内置长文', e);
+    newsDB = FALLBACK_NEWS;
+    badge.textContent = '📚 内置精选长文（离线可用）';
+    badge.className = 'update-badge offline';
+  }
+  refreshNews();
+}
 
     function refreshNews() {
       const newsList = newsDB?.[currentLang]?.[currentTopic] || [];
