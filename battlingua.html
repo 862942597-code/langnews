@@ -148,23 +148,35 @@
       } catch (e) { return '[网络错误]'; }
     }
 
-    // ========== 朗读（微软Edge自然语音） ==========
-    async function speakText(text, lang) {
-      // 微软Edge TTS 免费接口，声音自然
-      const voiceMap = {
-        japanese: 'ja-JP-NanamiNeural',
-        english: 'en-US-JennyNeural',
-        chinese: 'zh-CN-XiaoxiaoNeural'
-      };
-      const voiceName = voiceMap[lang] || 'en-US-JennyNeural';
-      const url = `https://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?TrustedClientToken=6A5AA1D4EAFF4E9FB37E23D68491D6F4&Sec-MS-GEC=${encodeURIComponent('9e8aae1a-28d3-4aa4-a4ba-272a02e26af9')}&Sec-MS-GEC-Version=1-130.0.2849.68&VoiceName=${voiceName}&Text=${encodeURIComponent(text)}`;
-      try {
-        const audio = new Audio(url);
-        await audio.play();
-      } catch (e) {
-        alert('朗读失败，请检查网络或稍后再试');
-      }
-    }
+    // ========== 朗读（微软Edge自然语音，已修复） ==========
+async function speakText(text, lang) {
+  // 清洗文本，移除可能干扰朗读的符号
+  const cleanText = text.replace(/https?:\/\/\S+/g, '').replace(/\[\d+\]/g, '').replace(/\*\*/g, '');
+  
+  const voiceMap = {
+    japanese: 'ja-JP-NanamiNeural',
+    english: 'en-US-JennyNeural',
+    chinese: 'zh-CN-XiaoxiaoNeural'
+  };
+  const voiceName = voiceMap[lang] || 'en-US-JennyNeural';
+  const url = `https://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?TrustedClientToken=6A5AA1D4EAFF4E9FB37E23D68491D6F4&VoiceName=${voiceName}&Text=${encodeURIComponent(cleanText)}`;
+  
+  try {
+    const audio = new Audio(url);
+    audio.onerror = () => {
+      // 如果Edge TTS失败，回退到浏览器内置
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = lang === 'japanese' ? 'ja-JP' : lang === 'chinese' ? 'zh-CN' : 'en-US';
+      window.speechSynthesis.speak(utterance);
+    };
+    await audio.play();
+  } catch (e) {
+    // 回退
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = lang === 'japanese' ? 'ja-JP' : lang === 'chinese' ? 'zh-CN' : 'en-US';
+    window.speechSynthesis.speak(utterance);
+  }
+}
 
     // 语法高亮
     function highlightGrammar(text, lang) {
@@ -388,40 +400,34 @@
       }
     };
 
-    // 加载新闻（优先用news.js返回的长内容）
-    async function loadNews() {
-      const badge = document.getElementById('updateBadge');
-      try {
-        newsContainer.innerHTML = '<div class="loading-spinner">⏳ 正在加载今日新闻...</div>';
-        const res = await fetch('/api/news');
-        if (!res.ok) throw new Error('API error');
-        const data = await res.json();
-        const firstContent = data?.japanese?.battery?.[0]?.content || '';
-        if (firstContent.length > 100) {
-          newsDB = data;
-          badge.textContent = '✅ 今日AI生成长文';
-          badge.className = 'update-badge online';
-        } else {
-          // 内容太短，尝试全文提取
-          try {
-            const fullData = await fetchFullContent(data);
-            if (fullData?.japanese?.battery?.[0]?.content?.length > 100) {
-              newsDB = fullData;
-              badge.textContent = '✅ 今日原文长文';
-              badge.className = 'update-badge online';
-            } else throw new Error('short');
-          } catch (e) {
-            throw new Error('no full content');
-          }
-        }
-      } catch (e) {
-        console.warn('在线获取失败，使用内置长文');
-        newsDB = FALLBACK_NEWS;
-        badge.textContent = '📚 内置精选长文（离线可用）';
-        badge.className = 'update-badge offline';
-      }
-      refreshNews();
+    // ========== 加载新闻（只用Gemini，不用原文提取）==========
+async function loadNews() {
+  const badge = document.getElementById('updateBadge');
+  try {
+    newsContainer.innerHTML = '<div class="loading-spinner">⏳ 正在加载今日新闻...</div>';
+    const res = await fetch('/api/news');
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    
+    // 检查内容是否足够长
+    const firstContent = data?.japanese?.battery?.[0]?.content || '';
+    const hasGoodContent = firstContent.length > 200;
+    
+    if (hasGoodContent) {
+      newsDB = data;
+      badge.textContent = '✅ 今日AI生成长文';
+      badge.className = 'update-badge online';
+    } else {
+      throw new Error('Content too short');
     }
+  } catch (e) {
+    console.log('使用内置文章');
+    newsDB = FALLBACK_NEWS;
+    badge.textContent = '📚 内置精选长文';
+    badge.className = 'update-badge offline';
+  }
+  refreshNews();
+}
 
     // 全文提取函数（保留备用）
     async function fetchFullContent(newsData) {
