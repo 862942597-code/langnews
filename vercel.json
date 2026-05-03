@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/battlingua.html" }
+    { "source": "/((?!api/).*)", "destination": "/battlingua.html" }
   ],
   "crons": [
     {
