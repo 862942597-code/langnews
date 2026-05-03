@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/api/parse-article", "destination": "/api/parse-article" },
     { "source": "/((?!api/).*)", "destination": "/battlingua.html" }
   ],
   "crons": [
