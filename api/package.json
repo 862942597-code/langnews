@@ -1,7 +1,6 @@
 {
   "name": "langnews-api",
   "version": "1.0.0",
-  "description": "Backend for LangNews app",
   "dependencies": {
     "@extractus/article-extractor": "^8.0.0",
     "node-fetch": "^3.3.2"
