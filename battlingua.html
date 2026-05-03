@@ -95,16 +95,32 @@
     // ========== 内置备用长文（当 API 不可用时自动切换）==========
     const FALLBACK_NEWS = {
       japanese: {
-        battery: [{ id: 'fb_ja_bat', title: "全固体電池の量産化、トヨタが2027年に前倒し", source: "日本経済新聞", content: "トヨタ自動車は次世代電池として期待される全固体電池の量産開始時期を、2028年から2027年に前倒しすると発表した。この新型電池は、液体電解質を固体電解質に置き換え、エネルギー密度が約2倍に向上し、航続距離は1回の充電で1,200kmに達する見込みである。充電時間は10分未満に短縮されるという。同社は硫化物系固体電解質の材料開発に取り組み、イオン伝導率を実用レベルまで高めることに成功した。量産の課題は界面抵抗の低減と大型セルの製造プロセス確立である。愛知県の拠点に試験生産ラインを新設し、2026年までに年間数千個規模の試作を行う。初期搭載はレクサスのEVになると見られる。コストは高くなるが航続距離と安全性でプレミアムEV市場に競争力を持つとアナリストは指摘する。トヨタは約1,000件の関連特許を保有し、クロスライセンスも視野に入れている。今回の前倒しにより世界のEV電池市場の勢力図が大きく変わると予想される。最高技術責任者は「全固体電池は電動化戦略の切り札であり、2027年の量産実現に全力を尽くす」とコメントした。" }],
-        smarthome: [{ id: 'fb_ja_home', title: "スマートホーム市場が拡大、AIスピーカーと省エネ家電が牽引", source: "日経トレンディ", content: "国内のスマートホーム市場は2026年に1兆円規模に達するとの予測が発表された。中核を担うのはAIスピーカーと、それに接続される省エネ家電群である。Google NestやAmazon Echoの普及に加え、国内メーカーも独自の音声アシスタントを搭載したエアコンや照明、冷蔵庫を次々と投入している。特に注目されるのは、居住者の行動パターンを学習し、自動で温度や照度を調整する適応型システムだ。さらに、HEMS（ホームエネルギーマネジメントシステム）と連携し、太陽光発電や蓄電池と組み合わせて電力の自給自足を目指す動きも活発化している。通信規格では、Matter規格の採用が進み、異なるメーカーの機器間の相互接続性が向上した。セキュリティ面では、顔認証機能付きスマートロックや、AIによる異常検知カメラが人気を集めている。高齢者見守りサービスでは、転倒検知や服薬リマインダー機能が搭載されたシステムが自治体と連携して導入され始めた。課題はデータプライバシーとサイバーセキュリティであり、政府はガイドラインの策定を急いでいる。" }],
-        "3dprint": [{ id: 'fb_ja_3d', title: "3Dプリンティングとレーザー加工の融合、製造現場に革新", source: "日刊工業新聞", content: "積層造形（3Dプリンティング）とレーザー彫刻・切断技術を融合させたハイブリッド加工機が、中小製造業で急速に導入されている。金属粉末を使ったレーザー積層造形は、従来の切削加工では不可能だった複雑な内部構造を持つ部品の一体成型を可能にする。さらに、造形後にレーザーで表面を精密に仕上げる工程を同一機内で行えるため、リードタイムの大幅短縮が実現した。航空宇宙分野では、軽量化と高強度を両立したエンジン部品の製造に活用が進む。医療分野では、患者のCTデータを基にしたカスタムインプラントのオンデマンド製造が普及しつつある。教育現場では、レーザーカッターを使ったものづくり教育がSTEAM教育の一環として定着し、小中学生向けのワークショップも増加している。国内メーカーは、操作性に優れた国産機の開発を加速させ、欧米の高級機に対抗する。課題は材料コストと造形速度の改善であり、新たな光硬化樹脂や高速スキャン方式の開発が進められている。" }],
-        ai: [{ id: 'fb_ja_ai', title: "生成AIが家電に組み込まれ、パーソナライズ機能が進化", source: "ITmedia", content: "ChatGPTに代表される大規模言語モデル（LLM）が、家庭用電化製品に次々と組み込まれ始めた。冷蔵庫が在庫を認識して献立を提案し、洗濯機が衣類の素材を判別して最適な洗濯コースを自動選択する。こうした機能は、クラウド上のAIとエッジデバイス上の小型モデルが連携することで実現している。音声アシスタントは、ユーザーの口調や気分を分析し、より自然な対話が可能になった。一方で、個人情報の扱いや、AIの判断ミスによるリスクへの懸念も高まっている。政府はAI搭載家電に関する安全基準の策定に乗り出した。メーカー各社は、データを端末内で処理する「オンデバイスAI」の開発を強化し、プライバシー保護と機能性の両立を目指す。市場調査会社は、AI家電の世界市場が2028年には5兆円を超えると予測している。" }]
+        battery: [
+          { id: 'fb_ja_bat', title: "全固体電池の量産化、トヨタが2027年に前倒し", source: "日本経済新聞", content: "トヨタ自動車は次世代電池として期待される全固体電池の量産開始時期を、2028年から2027年に前倒しすると発表した。この新型電池は、液体電解質を固体電解質に置き換え、エネルギー密度が約2倍に向上し、航続距離は1回の充電で1,200kmに達する見込みである。充電時間は10分未満に短縮されるという。同社は硫化物系固体電解質の材料開発に取り組み、イオン伝導率を実用レベルまで高めることに成功した。量産の課題は界面抵抗の低減と大型セルの製造プロセス確立である。愛知県の拠点に試験生産ラインを新設し、2026年までに年間数千個規模の試作を行う。初期搭載はレクサスのEVになると見られる。コストは高くなるが航続距離と安全性でプレミアムEV市場に競争力を持つとアナリストは指摘する。トヨタは約1,000件の関連特許を保有し、クロスライセンスも視野に入れている。今回の前倒しにより世界のEV電池市場の勢力図が大きく変わると予想される。最高技術責任者は「全固体電池は電動化戦略の切り札であり、2027年の量産実現に全力を尽くす」とコメントした。" }
+        ],
+        smarthome: [
+          { id: 'fb_ja_home', title: "スマートホーム市場が拡大、AIスピーカーと省エネ家電が牽引", source: "日経トレンディ", content: "国内のスマートホーム市場は2026年に1兆円規模に達するとの予測が発表された。中核を担うのはAIスピーカーと、それに接続される省エネ家電群である。Google NestやAmazon Echoの普及に加え、国内メーカーも独自の音声アシスタントを搭載したエアコンや照明、冷蔵庫を次々と投入している。特に注目されるのは、居住者の行動パターンを学習し、自動で温度や照度を調整する適応型システムだ。さらに、HEMS（ホームエネルギーマネジメントシステム）と連携し、太陽光発電や蓄電池と組み合わせて電力の自給自足を目指す動きも活発化している。通信規格では、Matter規格の採用が進み、異なるメーカーの機器間の相互接続性が向上した。セキュリティ面では、顔認証機能付きスマートロックや、AIによる異常検知カメラが人気を集めている。高齢者見守りサービスでは、転倒検知や服薬リマインダー機能が搭載されたシステムが自治体と連携して導入され始めた。課題はデータプライバシーとサイバーセキュリティであり、政府はガイドラインの策定を急いでいる。" }
+        ],
+        "3dprint": [
+          { id: 'fb_ja_3d', title: "3Dプリンティングとレーザー加工の融合、製造現場に革新", source: "日刊工業新聞", content: "積層造形（3Dプリンティング）とレーザー彫刻・切断技術を融合させたハイブリッド加工機が、中小製造業で急速に導入されている。金属粉末を使ったレーザー積層造形は、従来の切削加工では不可能だった複雑な内部構造を持つ部品の一体成型を可能にする。さらに、造形後にレーザーで表面を精密に仕上げる工程を同一機内で行えるため、リードタイムの大幅短縮が実現した。航空宇宙分野では、軽量化と高強度を両立したエンジン部品の製造に活用が進む。医療分野では、患者のCTデータを基にしたカスタムインプラントのオンデマンド製造が普及しつつある。教育現場では、レーザーカッターを使ったものづくり教育がSTEAM教育の一環として定着し、小中学生向けのワークショップも増加している。国内メーカーは、操作性に優れた国産機の開発を加速させ、欧米の高級機に対抗する。課題は材料コストと造形速度の改善であり、新たな光硬化樹脂や高速スキャン方式の開発が進められている。" }
+        ],
+        ai: [
+          { id: 'fb_ja_ai', title: "生成AIが家電に組み込まれ、パーソナライズ機能が進化", source: "ITmedia", content: "ChatGPTに代表される大規模言語モデル（LLM）が、家庭用電化製品に次々と組み込まれ始めた。冷蔵庫が在庫を認識して献立を提案し、洗濯機が衣類の素材を判別して最適な洗濯コースを自動選択する。こうした機能は、クラウド上のAIとエッジデバイス上の小型モデルが連携することで実現している。音声アシスタントは、ユーザーの口調や気分を分析し、より自然な対話が可能になった。一方で、個人情報の扱いや、AIの判断ミスによるリスクへの懸念も高まっている。政府はAI搭載家電に関する安全基準の策定に乗り出した。メーカー各社は、データを端末内で処理する「オンデバイスAI」の開発を強化し、プライバシー保護と機能性の両立を目指す。市場調査会社は、AI家電の世界市場が2028年には5兆円を超えると予測している。" }
+        ]
       },
       english: {
-        battery: [{ id: 'fb_en_bat', title: "U.S. DOE Pledges $3.5 Billion to Boost Domestic Battery Manufacturing", source: "Reuters", content: "The U.S. Department of Energy has announced a $3.5 billion funding initiative to strengthen domestic production of advanced batteries and critical materials, funded by the Bipartisan Infrastructure Law. The investment aims to reduce reliance on foreign supply chains, particularly China, which controls over 70% of global lithium-ion battery output. Key focus areas include lithium processing, graphite and synthetic anode production, cathode powder manufacturing, and solid-state battery technologies. A significant portion of the grants will target projects in traditional energy communities, promoting environmental justice and high-quality job creation. Analysts expect the capital to catalyze over $10 billion in private sector investment. Redwood Materials, a battery recycling specialist, is seen as a likely beneficiary. The DOE will also establish a consortium of national labs and universities to accelerate innovation and workforce training. Energy Secretary Jennifer Granholm stated the move ensures America's energy independence and leadership in the clean energy transition, building an end-to-end battery ecosystem at home." }],
-        smarthome: [{ id: 'fb_en_home', title: "Smart Home Market Surges as Matter Protocol Unifies Device Ecosystems", source: "The Verge", content: "The global smart home market is projected to reach $150 billion by 2026, driven by the widespread adoption of the Matter connectivity standard. This protocol, backed by Apple, Google, and Amazon, allows seamless interoperability between devices from different manufacturers. Voice assistants like Alexa and Google Assistant are now integrated into a range of appliances, from thermostats to refrigerators, enabling personalized automation. Energy management is a key growth area, with smart thermostats and lighting systems reducing consumption by up to 30%. Security devices, including AI-powered cameras and facial recognition locks, are increasingly popular. In elder care, fall detection and medication reminder systems are being deployed in assisted living facilities. Privacy concerns remain a challenge, and regulators are drafting stricter data protection rules. Industry leaders believe the smart home will evolve from convenience to essential infrastructure for sustainable living." }],
-        "3dprint": [{ id: 'fb_en_3d', title: "Hybrid 3D Printing and Laser Engraving Machines Reshape Manufacturing", source: "Wired", content: "A new generation of hybrid machines combining additive manufacturing with laser engraving and cutting is transforming small-scale production. These systems can 3D print metal parts using laser powder bed fusion and then laser-polish surfaces in the same chamber, drastically reducing lead times. Aerospace companies are using them to produce lightweight engine components with complex internal geometries. In medicine, patient-specific implants are being manufactured on-demand from CT scan data. The education sector is embracing laser cutters for STEAM programs, fostering creativity from an early age. Domestic manufacturers are developing user-friendly models to compete with European high-end machines. Material costs and printing speed are the primary hurdles, prompting research into new photopolymers and faster scanning methods. The fusion of additive and subtractive techniques is seen as the backbone of mass customization." }],
-        ai: [{ id: 'fb_en_ai', title: "Generative AI Integrates into Home Appliances, Sparking Privacy Debate", source: "TechCrunch", content: "Large language models like GPT-4 are being embedded into everyday home appliances, enabling features such as refrigerators that suggest recipes based on contents and washing machines that automatically select cycles by fabric type. These capabilities rely on a mix of cloud-based AI and on-device small models. Voice assistants now interpret user tone and mood for more natural interaction. However, concerns about personal data handling and AI errors are mounting. Governments are developing safety standards for AI-powered appliances. Manufacturers are investing in on-device AI to keep data local, balancing functionality and privacy. Analysts forecast the global AI appliance market will exceed $50 billion by 2028, with the fusion of hardware expertise and software innovation being critical." }]
+        battery: [
+          { id: 'fb_en_bat', title: "U.S. DOE Pledges $3.5 Billion to Boost Domestic Battery Manufacturing", source: "Reuters", content: "The U.S. Department of Energy has announced a $3.5 billion funding initiative to strengthen domestic production of advanced batteries and critical materials, funded by the Bipartisan Infrastructure Law. The investment aims to reduce reliance on foreign supply chains, particularly China, which controls over 70% of global lithium-ion battery output. Key focus areas include lithium processing, graphite and synthetic anode production, cathode powder manufacturing, and solid-state battery technologies. A significant portion of the grants will target projects in traditional energy communities, promoting environmental justice and high-quality job creation. Analysts expect the capital to catalyze over $10 billion in private sector investment. Redwood Materials, a battery recycling specialist, is seen as a likely beneficiary. The DOE will also establish a consortium of national labs and universities to accelerate innovation and workforce training. Energy Secretary Jennifer Granholm stated the move ensures America's energy independence and leadership in the clean energy transition, building an end-to-end battery ecosystem at home." }
+        ],
+        smarthome: [
+          { id: 'fb_en_home', title: "Smart Home Market Surges as Matter Protocol Unifies Device Ecosystems", source: "The Verge", content: "The global smart home market is projected to reach $150 billion by 2026, driven by the widespread adoption of the Matter connectivity standard. This protocol, backed by Apple, Google, and Amazon, allows seamless interoperability between devices from different manufacturers. Voice assistants like Alexa and Google Assistant are now integrated into a range of appliances, from thermostats to refrigerators, enabling personalized automation. Energy management is a key growth area, with smart thermostats and lighting systems reducing consumption by up to 30%. Security devices, including AI-powered cameras and facial recognition locks, are increasingly popular. In elder care, fall detection and medication reminder systems are being deployed in assisted living facilities. Privacy concerns remain a challenge, and regulators are drafting stricter data protection rules. Industry leaders believe the smart home will evolve from convenience to essential infrastructure for sustainable living." }
+        ],
+        "3dprint": [
+          { id: 'fb_en_3d', title: "Hybrid 3D Printing and Laser Engraving Machines Reshape Manufacturing", source: "Wired", content: "A new generation of hybrid machines combining additive manufacturing with laser engraving and cutting is transforming small-scale production. These systems can 3D print metal parts using laser powder bed fusion and then laser-polish surfaces in the same chamber, drastically reducing lead times. Aerospace companies are using them to produce lightweight engine components with complex internal geometries. In medicine, patient-specific implants are being manufactured on-demand from CT scan data. The education sector is embracing laser cutters for STEAM programs, fostering creativity from an early age. Domestic manufacturers are developing user-friendly models to compete with European high-end machines. Material costs and printing speed are the primary hurdles, prompting research into new photopolymers and faster scanning methods. The fusion of additive and subtractive techniques is seen as the backbone of mass customization." }
+        ],
+        ai: [
+          { id: 'fb_en_ai', title: "Generative AI Integrates into Home Appliances, Sparking Privacy Debate", source: "TechCrunch", content: "Large language models like GPT-4 are being embedded into everyday home appliances, enabling features such as refrigerators that suggest recipes based on contents and washing machines that automatically select cycles by fabric type. These capabilities rely on a mix of cloud-based AI and on-device small models. Voice assistants now interpret user tone and mood for more natural interaction. However, concerns about personal data handling and AI errors are mounting. Governments are developing safety standards for AI-powered appliances. Manufacturers are investing in on-device AI to keep data local, balancing functionality and privacy. Analysts forecast the global AI appliance market will exceed $50 billion by 2028, with the fusion of hardware expertise and software innovation being critical." }
+        ]
       }
     };
 
@@ -126,7 +142,7 @@
     let currentLang = 'japanese';
     let currentTopic = 'battery';
     let translationCache = {};
-    let newsDB = null; // 动态加载 或 静态备用
+    let newsDB = null;
 
     const newsContainer = document.getElementById('newsContainer');
     const tabJapanese = document.getElementById('tabJapanese');
@@ -177,7 +193,7 @@
           .replace(/見込み/g, '<span class="grammar-highlight" data-grammar="見込み：预期，预计">見込み</span>')
           .replace(/向け/g, '<span class="grammar-highlight" data-grammar="向け：面向…，针对…">向け</span>')
           .replace(/として/g, '<span class="grammar-highlight" data-grammar="として：作为…">として</span>')
-          .replace(/という/g, '<span class="grammar-highlight" data-grammar="という：所谓的…，听说…">という</span>')
+          .replace(/という/g, '<span class="grammar-highlight" data-grammar="という：所谓的…">という</span>')
           .replace(/だけでなく/g, '<span class="grammar-highlight" data-grammar="だけでなく：不仅…而且…">だけでなく</span>')
           .replace(/可能にする/g, '<span class="grammar-highlight" data-grammar="可能にする：使…成为可能">可能にする</span>');
       } else {
@@ -189,7 +205,7 @@
       }
     }
 
-    // 词典查询
+    // 词典查询（通过云函数代理）
     async function lookupWord(word, lang) {
       const popup = document.getElementById('wordPopup');
       popup.style.display = 'block';
@@ -329,6 +345,7 @@
         if (matchedTerms.length < 2) return;
         const term = matchedTerms[Math.floor(Math.random() * matchedTerms.length)];
         const correctDef = glossary[term];
+
         if (level === 'easy') {
           const opts = [correctDef, ...Object.values(glossary).filter(d=>d!==correctDef).sort(()=>Math.random()-0.5).slice(0,2)].sort(()=>Math.random()-0.5);
           let qhtml = `<p><strong>🧩 术语配对：</strong>"${escapeHtml(term)}" 的含义是？</p>`;
@@ -374,21 +391,60 @@
       }
     };
 
-    // 核心：加载新闻（带自动降级）
+    // ========== 全文提取核心函数 ==========
+    async function fetchFullContent(newsData) {
+      const fullNews = { japanese: {}, english: {} };
+      for (const lang of ['japanese', 'english']) {
+        for (const topic of Object.keys(newsData[lang] || {})) {
+          fullNews[lang][topic] = [];
+          const articles = newsData[lang][topic] || [];
+          for (const article of articles) {
+            if (!article.link) continue;
+            try {
+              const res = await fetch('/api/parse-article', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: article.link })
+              });
+              const fullArticle = await res.json();
+              if (fullArticle && fullArticle.content) {
+                fullNews[lang][topic].push({
+                  id: article.id,
+                  title: fullArticle.title || article.title,
+                  source: article.source,
+                  content: fullArticle.content.replace(/<[^>]*>/g, '') // 去除HTML标签
+                });
+              }
+            } catch (e) {
+              console.warn(`Failed to parse: ${article.link}`, e);
+            }
+          }
+        }
+      }
+      return fullNews;
+    }
+
+    // 核心：加载新闻（先拿列表，再提全文，失败则降级）
     async function loadNews() {
       const badge = document.getElementById('updateBadge');
       try {
         newsContainer.innerHTML = '<div class="loading-spinner">⏳ 正在加载今日新闻...</div>';
         const res = await fetch('/api/news');
-        if (!res.ok) throw new Error('API not available');
-        newsDB = await res.json();
-        // 简单验证是否有内容
-        const hasContent = newsDB?.japanese?.battery?.[0]?.content?.length > 50;
-        if (!hasContent) throw new Error('Empty content');
-        badge.textContent = '✅ 今日AI生成长文';
-        badge.className = 'update-badge online';
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+
+        // 尝试提取全文
+        const fullData = await fetchFullContent(data);
+        const hasFullContent = fullData?.japanese?.battery?.[0]?.content?.length > 50;
+        if (hasFullContent) {
+          newsDB = fullData;
+          badge.textContent = '✅ 今日原文长文';
+          badge.className = 'update-badge online';
+        } else {
+          throw new Error('No full content');
+        }
       } catch (e) {
-        console.warn('API 加载失败，切换至内置精选长文', e);
+        console.warn('全文提取失败，使用内置长文', e);
         newsDB = FALLBACK_NEWS;
         badge.textContent = '📚 内置精选长文（离线可用）';
         badge.className = 'update-badge offline';
