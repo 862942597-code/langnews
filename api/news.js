@@ -1,4 +1,4 @@
-// api/news.js —— 强制Gemini生成800‑1000字长文
+// api/news.js —— 保证永远返回长文（Gemini优先，否则拼接）
 const TOPICS = {
   battery: '("全固体電池" OR "lithium battery" OR "EV battery" OR "solid-state battery")',
   smarthome: '("スマートホーム" OR "smart home" OR "Matter protocol" OR "connected home")',
@@ -20,22 +20,27 @@ async function expandWithGemini(title, summaries, lang) {
     `あなたは専門のニュース編集者です。以下の短い記事をもとに、**必ず${lengthReq}程度**の詳しいニュース記事を日本語で書いてください。内容は業界の背景、技術解説、市場への影響、今後の展望を含めてください。重要な専門用語（例：全固体電池、リン酸鉄リチウム）には簡単な説明を付けてください。段落に分けて読みやすくまとめてください。出力は本文のみ、タイトルや前置きは不要です。` :
     `You are a professional news editor. Based on the following short news items, write a comprehensive industry article of **at least 800‑1000 words** in English. Include background, technical analysis, market impact, and future outlook. Provide brief explanations for key technical terms. Structure with paragraphs. Output only the body text, no title.`;
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }, { text: `Title: ${title}\n\nSource materials:\n${summaries}` }] }],
-        generationConfig: {
-          maxOutputTokens: 1500,
-          temperature: 0.7
-        }
-      })
-    }
-  );
-  const data = await response.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }, { text: `Title: ${title}\n\nSource materials:\n${summaries}` }] }],
+          generationConfig: {
+            maxOutputTokens: 1500,
+            temperature: 0.7
+          }
+        })
+      }
+    );
+    const data = await response.json();
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+  } catch (e) {
+    console.error('Gemini error:', e);
+    return null;
+  }
 }
 
 async function fetchTopicNews(topic, lang) {
@@ -52,14 +57,26 @@ async function fetchTopicNews(topic, lang) {
   const source = firstArticle.source?.name || 'News';
   const link = firstArticle.url;
 
-  const summaries = articles.map(a => cleanText(a.description || '') || cleanText(a.title || '')).join('\n---\n');
+  // 拼接所有文章的摘要+内容
+  const summaries = articles.map(a => {
+    const desc = cleanText(a.description || '');
+    const cont = cleanText(a.content || '');
+    return desc.length > cont.length ? desc : cont;
+  }).join('\n\n---\n\n');
 
-  let content = summaries;  // 备用：短摘要
+  let content = summaries; // 默认用拼接好的多篇文章内容，通常有几百字
+
+  // 尝试 Gemini 扩写
   if (GEMINI_API_KEY) {
     const expanded = await expandWithGemini(title, summaries, lang);
     if (expanded && expanded.length > 200) {
-      content = expanded;
+      content = expanded; // 用长文替换
     }
+  }
+
+  // 如果最终内容仍然很短（比如API返回的全是空），加一个兜底
+  if (content.length < 100) {
+    content = `${title}。このニュースは本日の最新情報です。詳細は元記事をご参照ください。\n\n` + summaries;
   }
 
   return {
@@ -75,10 +92,8 @@ export default async function handler(req, res) {
   try {
     const result = { japanese: {}, english: {} };
     for (const topic of Object.keys(TOPICS)) {
-      const jp = await fetchTopicNews(topic, 'jp');
-      const en = await fetchTopicNews(topic, 'en');
-      result.japanese[topic] = jp ? [jp] : [];
-      result.english[topic] = en ? [en] : [];
+      result.japanese[topic] = [(await fetchTopicNews(topic, 'jp'))].filter(Boolean);
+      result.english[topic] = [(await fetchTopicNews(topic, 'en'))].filter(Boolean);
     }
     res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate');
     res.status(200).json(result);
